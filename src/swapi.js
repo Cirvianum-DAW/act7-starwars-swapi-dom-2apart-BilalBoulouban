@@ -49,12 +49,15 @@ async function listMoviesSorted() {
   return movies.sort(_compareByName);
 }
 
+listMoviesSorted().then((res)=> console.log(res))
+
 async function listEvenMoviesSorted() {
   const movies = await listMovies();
   return movies
     .filter((movie) => movie.episodeID % 2 === 0)
     .sort(_compareByEpisodeId);
 }
+
 
 function getMovieInfo(id) {
   return fetch(`https://swapi.info/api/films/${id}/`)
