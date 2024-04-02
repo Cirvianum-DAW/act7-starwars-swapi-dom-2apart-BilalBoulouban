@@ -1,23 +1,55 @@
-import swapi from './swapi.js';
+import swapi from "./swapi.js";
 
 //Exemple d'inicialització de la llista de pel·lícules. Falten dades!
-async function setMovieHeading(movieId, titleSelector,infoSelector,directorSelector) {
+async function setMovieHeading(
+  movieId,
+  titleSelector,
+  infoSelector,
+  directorSelector
+) {
   // Obtenim els elements del DOM amb QuerySelector
   const title = document.querySelector(titleSelector);
   const info = document.querySelector(infoSelector);
   const director = document.querySelector(directorSelector);
-
+  
+if (!movieId) {
+  title.innerHTML='';
+  info.innerHTML= '';
+  director.innerHTML= '';
+  return;
+  
+}
   // Obtenim la informació de la pelicula
   const movieInfo = await swapi.getMovieInfo(movieId);
   // Injectem
   title.innerHTML = movieInfo.name;
-  info.innerHTML = `Episode ${movieInfo.episode_id}- ${movieInfo.release}`;
+  info.innerHTML = `Episode ${movieInfo.episodeID} - ${movieInfo.release}`;
   director.innerHTML = `Director: ${movieInfo.director}`;
 }
 
 async function initMovieSelect(selector) {
- const selector = document.querySelector(selector);
- 
+  const movies = await swapi.listMoviesSorted();
+  const select = document.querySelector(selector);
+
+  // movies.forEach(movie => {
+  //   const optionElement = document.createElement('option');
+
+  //   optionElement.value = movie.id;
+  //   optionElement.textContent = movie.title;
+  //   optionElement.innerHTML += ` (${movie.name})`;
+  //   selectElement.appendChild(optionElement);
+
+  const option = document.createElement("option");
+  option.value = "";
+  //  option.value = movie.id;
+  option.textContent = "Selecciona una pel·licula";
+  select.appendChild(option);
+  movies.forEach((movie) => {
+    const option = document.createElement("option");
+    option.value = _filmIdToEpisodeId(movie.episodeID);
+    option.textContent = movie.name;
+    select.appendChild(option);
+  });
 }
 
 function deleteAllCharacterTokens() {}
@@ -30,11 +62,26 @@ async function _createCharacterTokens() {}
 
 function _addDivChild(parent, className, html) {}
 
-function setMovieSelectCallbacks() {}
+function setMovieSelectCallbacks() {
+  const selectMovie = document.querySelector('#select-movie');
+  selectMovie.addEventListener('change'  , _handleOnSelectMovieChanged) 
+}
 
-async function _handleOnSelectMovieChanged(event) {}
+async function _handleOnSelectMovieChanged(event) {
+  //obtenir  el id de la pel·licula seleccionada
+  const movieID = event.target.value
+  //modifiquem la capsalera amb la informacio correcponent mab aquesta peli
+ setMovieHeading(movieID, '.movie__title', '.movie__info', '.movie__director');
+}
 
-function _filmIdToEpisodeId(episodeID) {}
+function _filmIdToEpisodeId(episodeID) {
+  const mapping = episodeToMovieIDs.find((item) => item.e === episodeID);
+  if (mapping) {
+    return mapping.m;
+  } else {
+    return null;
+  }
+}
 
 // "https://swapi.dev/api/films/1/" --> Episode_id = 4 (A New Hope)
 // "https://swapi.dev/api/films/2/" --> Episode_id = 5 (The Empire Strikes Back)
