@@ -52,7 +52,7 @@ async function initMovieSelect(selector) {
   });
 }
 
-function deleteAllCharacterTokens() {}
+// function deleteAllCharacterTokens() {} la hem implementat en _handleOnSelectMovieChanged
 
 // EVENT HANDLERS //
 
@@ -72,6 +72,17 @@ async function _handleOnSelectMovieChanged(event) {
   const movieID = event.target.value
   //modifiquem la capsalera amb la informacio correcponent mab aquesta peli
  setMovieHeading(movieID, '.movie__title', '.movie__info', '.movie__director');
+
+ //ex4 recuperar infomracio de l'auxiliar _populateHomeWorldSelector
+ const selector = document.querySelector('#select-homeworld');
+
+ const caracters = await swapi.getMovieCharactersAndHomeworlds(movieID);
+ //necesitem una llista amb els planetes d'origuen dels diferents personatges
+ const homeworlds = caracters.characters.map((caracter) => caracter.homeworld);
+ const homeworldsFiltred = _removeDuplicatesAndSort(homeworlds);
+ //amb la llista neta i de fet ordenada podem cridad a la funcio que actualitza el selector de homeword
+ _populateHomeWorldSelector(homeworldsFiltred,selector);
+ document.querySelector('.list_caracters').innerHTML = '';
 }
 
 function _filmIdToEpisodeId(episodeID) {
@@ -101,7 +112,24 @@ let episodeToMovieIDs = [
 
 function _setMovieHeading({ name, episodeID, release, director }) {}
 
-function _populateHomeWorldSelector(homeworlds) {}
+function _populateHomeWorldSelector(homeworlds) {
+  console.log(homeworlds);
+  const selector = document.querySelector('#select-homeworld');
+  selector.innerHTML= '';
+  //aqui implementem la logica per poblar o injectar els planetes al desplegable homeworld
+  const option = document.createElement('option');
+  option.value= '';
+  option.textContent='Selecciona un homeworld';
+  selector.appendChild(option);
+  homeworlds.forEach((homeword) => {
+    const option =document.createElement('option');
+    option.value= homeword;
+    option.textContent= homeword;
+    selector.appendChild(option);
+  });
+
+
+}
 
 /**
  * Funció auxiliar que podem reutilitzar: eliminar duplicats i ordenar alfabèticament un array.
@@ -110,16 +138,18 @@ function _removeDuplicatesAndSort(elements) {
   // Al crear un Set eliminem els duplicats
   const set = new Set(elements);
   // tornem a convertir el Set en un array
-  const array = Array.from(set);
-  // i ordenem alfabèticament
-  return array.sort(swapi._compareByName);
+  const array = [...set].sort();
+  return array;
+  // const array = Array.from(set);
+  // // i ordenem alfabèticament
+  // return array.sort(swapi._compareByName);
 }
 
 const act7 = {
   setMovieHeading,
   setMovieSelectCallbacks,
   initMovieSelect,
-  deleteAllCharacterTokens,
+  //deleteAllCharacterTokens,
   addChangeEventToSelectHomeworld,
 };
 
